@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 
 export default function App() {
   const [file, setFile] = useState(null);
@@ -8,12 +8,23 @@ export default function App() {
     setFile(e.target.files[0]);
   };
 
-  const handleClick = (filePath) =>  {
-    // Create a form and then send it int he body of the request.
-    axios.post('/this is the routing path for the backend', {
-      file
-    })
-  }
+  const handleClick = async () => {
+    if (!file) return;
+
+    // Create FormData and append the file name as 'file_path'
+    const formData = new FormData();
+    formData.append("file_path", file.name);
+
+    try {
+      const res = await axios.post("http://127.0.0.1:8000/classify", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("✅ Response:", res.data);
+      alert("File path sent successfully!");
+    } catch (err) {
+      console.error("❌ Upload error:", err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
@@ -42,7 +53,7 @@ export default function App() {
         {file && (
           <button
             className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-xl transition"
-            onClick={() => handleClick(file.name)}
+            onClick={handleClick}
           >
             Upload
           </button>
